@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Flight Prep">
+<meta name="theme-color" content="#060a10">
+<title>UAA Flight Prep — KGYR SR20</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#060a10;color:#b8cce0;font-family:'DM Sans',-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+.app{min-height:100vh;min-height:100dvh;background:#060a10;padding:env(safe-area-inset-top,0) 16px 32px;max-width:520px;margin:0 auto}
+.header{text-align:center;padding:24px 0 20px;position:relative}
+.header::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:60px;height:2px;background:linear-gradient(90deg,transparent,#0070d1,transparent)}
+.header-badge{display:inline-flex;align-items:center;gap:8px;padding:5px 14px;background:rgba(0,112,209,.08);border:1px solid rgba(0,112,209,.2);border-radius:20px;margin-bottom:10px}
+.header-badge span{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2.5px;color:#0070d1;text-transform:uppercase;font-weight:500}
+.header-dot{width:5px;height:5px;border-radius:50%;background:#0070d1;animation:pulse-dot 2s ease-in-out infinite}
+@keyframes pulse-dot{0%,100%{opacity:.4}50%{opacity:1}}
+.header h2{font-size:26px;font-weight:700;color:#eaf3ff;letter-spacing:-.5px}
+.header-sub{font-family:'JetBrains Mono',monospace;font-size:11px;color:#3a6a8a;letter-spacing:3px;margin-top:6px;text-transform:uppercase}
+.nav{display:flex;gap:5px;margin:20px 0;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.tab{padding:10px 14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:10px;color:#4a7a9a;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .2s ease;white-space:nowrap;flex-shrink:0;display:flex;align-items:center;gap:6px}
+.tab:hover{border-color:rgba(0,112,209,.3);color:#8ac0e8;background:rgba(0,112,209,.04)}
+.tab.active{background:rgba(0,112,209,.1);border-color:rgba(0,112,209,.4);color:#4aadff;box-shadow:0 0 20px rgba(0,112,209,.08),inset 0 1px 0 rgba(255,255,255,.04)}
+.tab-icon{font-size:12px}
+.section-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:3px;color:#0070d1;text-transform:uppercase;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid rgba(0,112,209,.15);font-weight:600}
+.script{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:20px;line-height:2.2;font-size:15px;color:#c0d4e8;margin-bottom:16px}
+input.blank{background:transparent;border:none;border-bottom:2px solid rgba(0,112,209,.4);color:#4aadff;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;padding:0 4px 2px;outline:none;transition:all .2s ease;display:inline;vertical-align:baseline;min-width:60px;border-radius:0}
+input.blank:focus{border-bottom-color:#4aadff;background:rgba(0,112,209,.06)}
+input.blank::placeholder{color:#1e4a6a;font-style:italic}
+.btn-row{display:flex;gap:8px}
+.read-btn{flex:1;padding:14px;background:rgba(0,112,209,.08);border:1px solid rgba(0,112,209,.3);border-radius:10px;color:#4aadff;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s ease}
+.read-btn:hover{background:#0070d1;color:#fff;border-color:#0070d1}
+.read-btn.stop{border-color:rgba(231,76,60,.5);color:#e74c3c;background:rgba(231,76,60,.06)}
+.read-btn.stop:hover{background:#e74c3c;color:#fff}
+.clear-btn{padding:14px 20px;background:transparent;border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#3a6a8a;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .15s}
+.clear-btn:hover{border-color:rgba(231,76,60,.4);color:#e74c3c}
+.note{font-size:10px;color:#2a4a6a;font-family:'JetBrains Mono',monospace;text-align:center;margin-top:12px;letter-spacing:.3px;line-height:1.8}
+.flow-card{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:12px;margin-bottom:10px;overflow:hidden;transition:all .2s ease}
+.flow-card.flow-done{border-color:rgba(39,174,96,.25)}
+.flow-card-header{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;cursor:pointer;background:rgba(255,255,255,.015);transition:background .15s}
+.flow-card-header:hover{background:rgba(255,255,255,.03)}
+.flow-header-left{display:flex;flex-direction:column;gap:6px;flex:1}
+.flow-card-header h3{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#8ab8d8;font-weight:600}
+.flow-progress-bar{width:100%;max-width:200px;height:3px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden}
+.flow-progress-fill{height:100%;background:linear-gradient(90deg,#0070d1,#27ae60);border-radius:2px;transition:width .3s ease}
+.flow-header-right{display:flex;align-items:center;gap:10px}
+.flow-count{font-family:'JetBrains Mono',monospace;font-size:11px;color:#3a6a8a}
+.flow-chevron{color:#2a4a6a;font-size:10px}
+.flow-items{padding:4px 0}
+.flow-item{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,.03);cursor:pointer;transition:all .15s}
+.flow-item:last-child{border-bottom:none}
+.flow-item:hover{background:rgba(255,255,255,.02)}
+.flow-item.checked{opacity:.4}
+.flow-check{width:20px;height:20px;border:1.5px solid #2a4a6a;border-radius:5px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;transition:all .2s ease}
+.flow-item.checked .flow-check{background:#27ae60;border-color:#27ae60;color:#fff}
+.flow-text{font-size:14px;color:#b8cce0;flex:1}
+.flow-item.checked .flow-text{text-decoration:line-through;color:#2a4a6a}
+.flow-reset{width:100%;padding:10px;background:transparent;border:none;border-top:1px solid rgba(255,255,255,.04);color:#2a4a6a;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:500;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:color .15s}
+.flow-reset:hover{color:#e74c3c}
+.ds-section{margin-bottom:20px}
+.ds-header{background:rgba(0,112,209,.12);color:#4aadff;padding:10px 14px;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;border-radius:8px 8px 0 0;border:1px solid rgba(0,112,209,.15);border-bottom:none}
+.ds-row{display:grid;gap:1px;background:rgba(255,255,255,.04)}
+.ds-row.four{grid-template-columns:2fr 1fr 1fr 1fr}
+.ds-cell{background:#0a0e16;padding:9px 10px;font-size:13px}
+.ds-cell.label{color:#7aa0c0;font-size:12px}
+.ds-cell.col-header{color:#4aadff;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;text-align:center;background:rgba(0,112,209,.05)}
+.ds-cell.value{color:#7dd4fc;font-family:'JetBrains Mono',monospace;font-weight:600;text-align:right}
+.ds-cell.computed{color:#a8e6cf;font-family:'JetBrains Mono',monospace;font-weight:600;text-align:right}
+.ds-cell.total{background:rgba(0,112,209,.08);color:#eaf3ff;font-weight:700}
+.ds-cell.subtotal{background:rgba(0,112,209,.04);color:#5abaff;font-weight:600}
+input.ds-input{background:transparent;border:none;border-bottom:1px solid rgba(0,112,209,.25);color:#7dd4fc;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;padding:0 2px;outline:none;width:100%;text-align:right;transition:border-color .15s}
+input.ds-input.left-align{text-align:left;border-bottom:1px solid rgba(0,112,209,.2);padding:4px 0}
+input.ds-input:focus{border-bottom-color:#4aadff}
+input.ds-input::placeholder{color:#1e3a5a;font-style:italic;font-size:11px}
+.cg-status{padding:12px 16px;border-radius:10px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.3px;text-align:center;margin-top:10px}
+.cg-ok{background:rgba(39,174,96,.08);border:1px solid rgba(39,174,96,.3);color:#2ecc71}
+.cg-warn{background:rgba(231,126,35,.08);border:1px solid rgba(231,126,35,.3);color:#f39c12}
+.perf-input-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.perf-field{display:flex;flex-direction:column;gap:5px}
+.perf-label{font-size:9px;color:#3a6a8a;font-family:'JetBrains Mono',monospace;letter-spacing:1.5px;text-transform:uppercase;font-weight:600}
+.perf-val{font-family:'JetBrains Mono',monospace;font-size:15px;color:#7dd4fc;font-weight:700}
+.perf-val.perf-danger{color:#e74c3c}
+.divider{height:1px;background:linear-gradient(90deg,transparent,rgba(0,112,209,.15),transparent);margin:20px 0}
+.wind-divider{height:1px;background:rgba(255,255,255,.04);margin:8px 0 12px}
+.margin-callout{font-family:'JetBrains Mono',monospace;font-size:11px;color:#5a8aaa;text-align:center;padding:8px 12px;margin-top:4px;background:rgba(0,112,209,.04);border-radius:6px;border:1px solid rgba(0,112,209,.08)}
+.vspeeds-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(255,255,255,.04);border-radius:0 0 8px 8px;overflow:hidden;border:1px solid rgba(0,112,209,.15);border-top:none}
+.vspeed-item{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#0a0e16}
+.vspeed-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:#5a8aaa;letter-spacing:1px;text-transform:uppercase;font-weight:600}
+.vspeed-val{font-family:'JetBrains Mono',monospace;font-size:14px;color:#7dd4fc;font-weight:700}
+.fade-in{animation:fadeSlideIn .3s ease forwards}
+@keyframes fadeSlideIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.footer{text-align:center;margin-top:32px;padding-top:16px;border-top:1px solid rgba(255,255,255,.04)}
+.footer p{font-family:'JetBrains Mono',monospace;font-size:9px;color:#1e3a5a;letter-spacing:1px;line-height:1.8}
+.reset-all-btn{width:100%;padding:14px;background:rgba(231,76,60,.06);border:1px solid rgba(231,76,60,.2);border-radius:10px;color:#c0392b;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s ease}
+.reset-all-btn:hover{background:rgba(231,76,60,.12);border-color:rgba(231,76,60,.4);color:#e74c3c}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script type="text/babel">
+const {useState, useEffect} = React;
+
+const ARMS = {front:143.5, rear:180.0, baggage:208.0, fuel:154.9};
+
+const LS = {
+  get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch(e) { return null; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {} },
+  clear() { try { const keys = []; for (let i=0; i<localStorage.length; i++) { const k = localStorage.key(i); if (k && k.startsWith("fp-")) keys.push(k); } keys.forEach(k => localStorage.removeItem(k)); } catch(e) {} }
+};
+
+function fmt(n, dec=1) { if (n==null||isNaN(n)) return "\u2014"; return n.toLocaleString("en-US",{minimumFractionDigits:dec,maximumFractionDigits:dec}); }
+function fmtI(n) { if (n==null||isNaN(n)) return "\u2014"; return Math.round(n).toLocaleString("en-US"); }
+function interp(temp, v10, v20) { return v10 + ((temp-10)/10)*(v20-v10); }
+
+function B({id, placeholder, vals, setVal}) {
+  const val = vals[id]||"";
+  const w = Math.max((placeholder||"").length, val.length)*9+20;
+  return React.createElement("input", {className:"blank", placeholder, value:val, onChange:e=>setVal(id,e.target.value), style:{width:Math.min(w,180)+"px"}});
+}
+
+function buildText(key, vals) {
+  const v = (id,fb="___") => vals[id]||fb;
+  const texts = {
+    pax: "Seatbelts fastened and secured. Exits \u2014 two doors to the left and right, exit toward the tail, stay clear of the propeller. If you're feeling airsick, let me know immediately \u2014 I'll turn on the AC and keep the flight level heading back to Goodyear. We operate a sterile cockpit during all critical phases of flight. No smoking on this aircraft at any time. For emergency equipment \u2014 fire extinguisher by my left leg, egress hammer in the center console, emergency survival kit in the baggage compartment. We operate a blue, red, red CAPS system in case of emergency. Positive exchange of controls \u2014 I will say you have controls, you say I have controls, I confirm you have controls.",
+    before: "I am pilot flying, you are pilot in command and pilot monitoring. Fuel plan \u2014 40 gallons on board, expected burn 20 gallons. Maintenance status \u2014 "+v("mx_hrs")+" until next maintenance, no deferred equipment. NOTAMs \u2014 "+v("notams","none noted")+". Taxi plan \u2014 taxi via "+v("taxi_route")+" to runway "+v("runway")+", runup at "+v("runup_loc")+". PEDs and EFB \u2014 both iPads charged and current.",
+    departure: "Threats \u2014 "+v("threats","none identified")+". Departure clearance \u2014 "+v("dep_clearance","VFR departure")+". Weather \u2014 "+v("wx_ceiling")+" ceiling, "+v("wx_vis")+" visibility, winds "+v("wx_dir")+" at "+v("wx_spd")+" knots, headwind "+v("hw")+", crosswind "+v("xw")+". Takeoff data \u2014 runway "+v("to_rwy")+", length "+v("rwy_len")+" feet, ground roll "+v("gnd_roll")+" feet, over 50-foot obstacle "+v("obs_dist")+" feet, VR 71, obstacle speed 81. Departure review \u2014 "+v("dep_review")+". Terrain and obstacles \u2014 "+v("terrain")+". Displays and automation \u2014 "+v("automation")+". Non-normals \u2014 rejected takeoff for any abnormality before rotation, I'll call abort, stop straight ahead. Engine failure after liftoff \u2014 maintain runway heading, land straight ahead, no turns below 500 feet. I fly, you handle the radio.",
+    arrival: "ATIS \u2014 information "+v("atis_code")+", winds "+v("arr_wind_dir")+" at "+v("arr_wind_spd")+", altimeter "+v("altimeter")+". Arrival review \u2014 "+v("arr_review")+", traffic pattern altitude "+v("tpa")+", contact tower at "+v("contact_pt")+". Stabilized approach \u2014 configured by 300 feet, if unstable going around. Terrain and obstacles \u2014 "+v("arr_terrain")+". Weather \u2014 "+v("arr_wx")+". Landing performance \u2014 ground roll "+v("lnd_gnd")+" feet, over 50-foot obstacle "+v("lnd_obs")+" feet, V-target "+v("vtgt","78 knots")+". Exit and taxi \u2014 exit at "+v("exit")+", taxi via "+v("arr_taxi")+". Go-around \u2014 click, cram, climb, clean, call \u2014 rejoin pattern "+v("ga_plan")+".",
+  };
+  return texts[key];
+}
+
+function BriefTab({tabKey, title, vals, setVal, onClear, children}) {
+  const [speaking, setSpeaking] = useState(false);
+  const handleRead = () => {
+    if (speaking) { window.speechSynthesis.cancel(); setSpeaking(false); return; }
+    const text = buildText(tabKey, vals);
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+      const utt = new SpeechSynthesisUtterance(text);
+      utt.rate = 0.88;
+      utt.onend = () => setSpeaking(false);
+      window.speechSynthesis.speak(utt);
+      setSpeaking(true);
+    }
+  };
+  return (
+    <div className="fade-in">
+      <div className="section-label">{title}</div>
+      <div className="script">{children}</div>
+      <div className="btn-row">
+        <button className={"read-btn"+(speaking?" stop":"")} onClick={handleRead}>{speaking?"\u25A0 STOP":"\u25B6 READ ALOUD"}</button>
+        <button className="clear-btn" onClick={()=>{onClear();window.speechSynthesis&&window.speechSynthesis.cancel();setSpeaking(false)}}>{"\u21BA CLEAR"}</button>
+      </div>
+    </div>
+  );
+}
+
+function FlowCard({flow, index}) {
+  const [open, setOpen] = useState(false);
+  const [checked, setChecked] = useState(()=>LS.get("fp-flow-"+flow.key)||[]);
+  useEffect(()=>{LS.set("fp-flow-"+flow.key,checked)},[checked,flow.key]);
+  const toggle = i => setChecked(c=>c.includes(i)?c.filter(x=>x!==i):[...c,i]);
+  const allDone = checked.length===flow.items.length;
+  const pct = flow.items.length>0?Math.round((checked.length/flow.items.length)*100):0;
+  return (
+    <div className={"flow-card fade-in"+(allDone?" flow-done":"")} style={{animationDelay:index*40+"ms"}}>
+      <div className="flow-card-header" onClick={()=>setOpen(o=>!o)}>
+        <div className="flow-header-left">
+          <h3>{flow.label} {allDone?"\u2713":""}</h3>
+          <div className="flow-progress-bar"><div className="flow-progress-fill" style={{width:pct+"%"}}/></div>
+        </div>
+        <div className="flow-header-right">
+          <span className="flow-count">{checked.length}/{flow.items.length}</span>
+          <span className="flow-chevron">{open?"\u25B2":"\u25BC"}</span>
+        </div>
+      </div>
+      {open && (<>
+        <div className="flow-items">
+          {flow.items.map((item,i)=>(
+            <div key={i} className={"flow-item"+(checked.includes(i)?" checked":"")} onClick={()=>toggle(i)}>
+              <div className="flow-check">{checked.includes(i)?"\u2713":""}</div>
+              <div className="flow-text">{item}</div>
+            </div>
+          ))}
+        </div>
+        <button className="flow-reset" onClick={e=>{e.stopPropagation();setChecked([])}}>&#8634; RESET ALL</button>
+      </>)}
+    </div>
+  );
+}
+
+const FLOWS = [
+  {key:"before_start",label:"Before Start",items:["CAPS pin \u2014 Remove","Fuel selector \u2014 Left Tank","Parking brake \u2014 Set","BAT 1 & BAT 2 \u2014 ON","NAV, Strobe Lights, Avionics \u2014 ON","Volts \u2014 Check (23\u201325V)","MFD Setup \u2014 Complete","Weather, NOTAMs \u2014 Obtain","Altimeters \u2014 Set","Avionics \u2014 OFF"]},
+  {key:"engine_start",label:"Engine Start",items:["Ignition Key \u2014 Insert","Brakes \u2014 Hold","Power Lever \u2014 Open \u00BC travel","Mixture \u2014 Cutoff","Fuel Pump \u2014 ON","Mixture \u2014 Full Rich then Cutoff (prime; skip if warm)","Ignition Switch \u2014 START","Mixture \u2014 Smoothly advance to rich","Power Lever \u2014 Retard (1200 RPM)","Oil Pressure \u2014 Check (within 10 sec)"]},
+  {key:"after_start",label:"After Start",items:["Power Lever \u2014 1200 RPM","Mixture \u2014 Lean for rise in RPM","Power Lever \u2014 1000 RPM","ALT 1 & ALT 2 \u2014 ON","Avionics \u2014 ON","Volts & Amps \u2014 Check (~28V, BAT 1 charging)","Cabin Heat/Defrost/AC \u2014 As required","Fuel Selector \u2014 Right Tank","Fuel Pump \u2014 OFF","Flaps \u2014 50%","Autopilot/Manual Electric Trim \u2014 Check","Elevator Trim \u2014 Takeoff, Aileron Trim \u2014 Neutral","Flight Controls \u2014 Free & Correct \u2192 announce"]},
+  {key:"runup_setup",label:"Run-Up Setup",items:["Parking Brake \u2014 Set","Left Door \u2014 Closed & Latched","Right Door \u2014 Closed & Latched","Fuel Selector \u2014 Fuller Tank","MFD \u2014 Select Engine Page"]},
+  {key:"runup",label:"Engine Run-Up",items:["Mixture \u2014 Rich","Power Lever \u2014 2200 RPM","Alternators \u2014 Check ALT 1 & 2 charging BAT 1","Landing Light, Pitot Heat \u2014 ON","Voltage \u2014 Check green","Landing Light, Pitot Heat \u2014 OFF (as required)","Magnetos \u2014 Check","Power Lever \u2014 Full","Mixture \u2014 Top of Green","Power Lever \u2014 Idle"]},
+  {key:"before_takeoff",label:"Before Takeoff",items:["Departure Briefing \u2014 Complete","Flight Plan \u2014 Load into FMS","NAV Radios \u2014 Set","CDI \u2014 As required","Transponder \u2014 Set, Altitude","HDG, ALT Bugs \u2014 Set","Flight Director \u2014 Set","Pitot Heat \u2014 As required","Fuel Pump \u2014 ON","Air Conditioner \u2014 Recirc Off"]},
+  {key:"after_takeoff",label:"After Takeoff",items:["Fuel Pump \u2014 Verify ON","Climb Power \u2014 Verify set","Mixture \u2014 Lean as required","Flaps \u2014 Verify UP","Engine Parameters \u2014 Check"]},
+  {key:"cruise",label:"Cruise",items:["Cruise Power \u2014 Set","Mixture \u2014 Cyan / 100 rich of peak","Fuel Pump \u2014 As required","Landing/Ice Lights \u2014 Off"]},
+];
+
+function DataSheet() {
+  const defaults = {tailNum:"",bew:"",bewCg:"",pilotWt:"192",copilotWt:"",rearBags:"10",bagComp:"15",fuelGal:"40",taxiGal:"2",burnGal:"18",altSetting:"",oat:"",windDir:"",windSpd:"",runway:"",rwyLen:""};
+  const saved = LS.get("fp-wb") || defaults;
+  const [d, setD] = useState({...defaults,...saved});
+  const upd = (k,v) => setD(prev => {const n={...prev,[k]:v}; LS.set("fp-wb",n); return n;});
+
+  const bewN=parseFloat(d.bew)||0, bewCgN=parseFloat(d.bewCg)||0;
+  const bewMom=(bewN*bewCgN)/1000;
+  const frontWt=(parseFloat(d.pilotWt)||0)+(parseFloat(d.copilotWt)||0);
+  const frontMom=(frontWt*ARMS.front)/1000;
+  const rearN=parseFloat(d.rearBags)||0, rearMom=(rearN*ARMS.rear)/1000;
+  const bagN=parseFloat(d.bagComp)||0, bagMom=(bagN*ARMS.baggage)/1000;
+  const zfw=bewN+frontWt+rearN+bagN, zfwMom=bewMom+frontMom+rearMom+bagMom, zfwCg=zfw>0?(zfwMom*1000)/zfw:0;
+  const fuelLbs=(parseFloat(d.fuelGal)||0)*6, fuelMom=(fuelLbs*ARMS.fuel)/1000;
+  const rampWt=zfw+fuelLbs, rampMom=zfwMom+fuelMom, rampCg=rampWt>0?(rampMom*1000)/rampWt:0;
+  const taxiLbs=(parseFloat(d.taxiGal)||0)*6, taxiMom=(taxiLbs*ARMS.fuel)/1000;
+  const towWt=rampWt-taxiLbs, towMom=rampMom-taxiMom, towCg=towWt>0?(towMom*1000)/towWt:0;
+  const burnLbs=(parseFloat(d.burnGal)||0)*6, burnMom=(burnLbs*ARMS.fuel)/1000;
+  const lndWt=towWt-burnLbs, lndMom=towMom-burnMom, lndCg=lndWt>0?(lndMom*1000)/lndWt:0;
+  const wtOk=towWt<=3150&&lndWt<=3150&&towWt>0;
+  const cgOk=towCg>=136&&towCg<=146&&lndCg>=136&&lndCg<=146&&towWt>0;
+  const altN=parseFloat(d.altSetting), oatN=parseFloat(d.oat);
+  const pa=!isNaN(altN)?Math.round(969+(29.92-altN)*1000):null;
+  const da=pa!=null&&!isNaN(oatN)?Math.round(pa+120*(oatN-13)):null;
+  const windDirN=parseFloat(d.windDir), windSpdN=parseFloat(d.windSpd), rwyHdg=parseFloat(d.runway)*10;
+  const windValid=!isNaN(windDirN)&&!isNaN(windSpdN)&&!isNaN(rwyHdg)&&windSpdN>0;
+  const windAngleRad=windValid?((windDirN-rwyHdg)*Math.PI)/180:0;
+  const headwind=windValid?Math.round(windSpdN*Math.cos(windAngleRad)):null;
+  const crosswind=windValid?Math.round(Math.abs(windSpdN*Math.sin(windAngleRad))):null;
+  const isTailwind=headwind!==null&&headwind<0;
+  const tempValid=!isNaN(oatN);
+  const toGR=tempValid?Math.round(interp(oatN,1784,1921)):null;
+  const toObs=tempValid?Math.round(interp(oatN,2675,2867)):null;
+  const lndGR=tempValid?Math.round(interp(oatN,869,900)):null;
+  const lndObs=tempValid?Math.round(interp(oatN,2665,2722)):null;
+
+  function WBRow({label,wt,arm,mom,cls}) {
+    return (<div className="ds-row four">
+      <div className={"ds-cell label "+(cls||"")}>{label}</div>
+      <div className={"ds-cell value "+(cls||"")}>{fmt(wt,1)}</div>
+      <div className={"ds-cell value "+(cls||"")}>{typeof arm==="number"?fmt(arm,1):arm}</div>
+      <div className={"ds-cell computed "+(cls||"")}>{fmt(mom,1)}</div>
+    </div>);
+  }
+
+  function DsIn({field,ph,style}) { return <input className={"ds-input"+(style?" "+style:"")} value={d[field]} onChange={e=>upd(field,e.target.value)} placeholder={ph}/>; }
+
+  return (
+    <div className="fade-in">
+      <div className="section-label">Aircraft</div>
+      <div className="perf-input-row" style={{marginBottom:12}}>
+        <div className="perf-field"><div className="perf-label">Tail Number</div><DsIn field="tailNum" ph="e.g. VAR848" style="left-align"/></div>
+        <div className="perf-field"><div className="perf-label">BEW (lbs)</div><DsIn field="bew" ph="from ForeFlight" style="left-align"/></div>
+      </div>
+      <div className="perf-input-row" style={{marginBottom:20}}>
+        <div className="perf-field"><div className="perf-label">BEW CG (in)</div><DsIn field="bewCg" ph="from ForeFlight" style="left-align"/></div>
+        <div className="perf-field"><div className="perf-label">BEW Moment (\u00F71000)</div><div className="perf-val" style={{fontSize:13}}>{bewN&&bewCgN?fmt(bewMom,1):"\u2014"}</div></div>
+      </div>
+      <div className="ds-section">
+        <div className="ds-header">Weight & Balance</div>
+        <div className="ds-row four"><div className="ds-cell col-header">Item</div><div className="ds-cell col-header">Wt (lbs)</div><div className="ds-cell col-header">Arm (in)</div><div className="ds-cell col-header">Mom (\u00F71k)</div></div>
+        <WBRow label={"BEW"+(d.tailNum?" ("+d.tailNum+")":"")} wt={bewN} arm={bewCgN} mom={bewMom}/>
+        <div className="ds-row four">
+          <div className="ds-cell label">Front Seats</div>
+          <div className="ds-cell value" style={{display:"flex",gap:4,alignItems:"center"}}><DsIn field="pilotWt" ph="PIC" style={{width:"45%"}}/><span style={{color:"#3a6a8a",fontSize:11}}>+</span><DsIn field="copilotWt" ph="SIC" style={{width:"45%"}}/></div>
+          <div className="ds-cell value">{fmt(ARMS.front,1)}</div><div className="ds-cell computed">{fmt(frontMom,1)}</div>
+        </div>
+        <div className="ds-row four"><div className="ds-cell label">Rear Seats (bags)</div><div className="ds-cell value"><DsIn field="rearBags" ph="0"/></div><div className="ds-cell value">{fmt(ARMS.rear,1)}</div><div className="ds-cell computed">{fmt(rearMom,1)}</div></div>
+        <div className="ds-row four"><div className="ds-cell label">Baggage Comp.</div><div className="ds-cell value"><DsIn field="bagComp" ph="0"/></div><div className="ds-cell value">{fmt(ARMS.baggage,1)}</div><div className="ds-cell computed">{fmt(bagMom,1)}</div></div>
+        <WBRow label="Zero Fuel Weight" wt={zfw} arm={fmt(zfwCg,1)} mom={zfwMom} cls="subtotal"/>
+        <div className="ds-row four"><div className="ds-cell label subtotal">Fuel</div><div className="ds-cell value subtotal" style={{display:"flex",gap:4,alignItems:"center"}}><DsIn field="fuelGal" ph="gal" style={{width:"36%"}}/><span style={{color:"#5a8aaa",fontSize:10}}>gal = {fmtI(fuelLbs)} lb</span></div><div className="ds-cell value subtotal">{fmt(ARMS.fuel,1)}</div><div className="ds-cell computed subtotal">{fmt(fuelMom,1)}</div></div>
+        <WBRow label="Ramp Weight" wt={rampWt} arm={fmt(rampCg,1)} mom={rampMom} cls="subtotal"/>
+        <div className="ds-row four"><div className="ds-cell label">Taxi / Runup</div><div className="ds-cell value" style={{display:"flex",gap:4,alignItems:"center"}}><DsIn field="taxiGal" ph="gal" style={{width:"36%"}}/><span style={{color:"#5a8aaa",fontSize:10}}>= \u2212{fmtI(taxiLbs)} lb</span></div><div className="ds-cell value">{fmt(ARMS.fuel,1)}</div><div className="ds-cell computed">{"\u2212"+fmt(taxiMom,1)}</div></div>
+        <WBRow label="Takeoff Weight" wt={towWt} arm={fmt(towCg,1)} mom={towMom} cls="total"/>
+        <div className="ds-row four"><div className="ds-cell label">Inflight Burn</div><div className="ds-cell value" style={{display:"flex",gap:4,alignItems:"center"}}><DsIn field="burnGal" ph="gal" style={{width:"36%"}}/><span style={{color:"#5a8aaa",fontSize:10}}>= \u2212{fmtI(burnLbs)} lb</span></div><div className="ds-cell value">{fmt(ARMS.fuel,1)}</div><div className="ds-cell computed">{"\u2212"+fmt(burnMom,1)}</div></div>
+        <WBRow label="Est. Landing Weight" wt={lndWt} arm={fmt(lndCg,1)} mom={lndMom} cls="total"/>
+      </div>
+      <div className={"cg-status "+(wtOk&&cgOk?"cg-ok":"cg-warn")}>
+        {towWt>3150?"\u26A0 TOW "+fmtI(towWt)+" EXCEEDS MAX 3,150 LBS"
+        :lndWt>3150?"\u26A0 LANDING WT "+fmtI(lndWt)+" EXCEEDS MAX 3,150 LBS"
+        :!cgOk&&towWt>0?"\u26A0 CG OUT OF ENVELOPE (136.0\u2013146.0 in) \u2014 T/O "+fmt(towCg,1)+" / LND "+fmt(lndCg,1)
+        :towWt>0?"\u2713 W&B OK \u2014 T/O "+fmtI(towWt)+" lbs / CG "+fmt(towCg,1)+"\" \u00B7 LND "+fmtI(lndWt)+" lbs / CG "+fmt(lndCg,1)+"\""
+        :"ENTER AIRCRAFT DATA ABOVE"}
+      </div>
+      <div className="divider"/>
+      <div className="ds-section">
+        <div className="ds-header">Current Conditions</div>
+        <div className="perf-input-row" style={{marginTop:12}}>
+          <div className="perf-field"><div className="perf-label">Altimeter (inHg)</div><DsIn field="altSetting" ph="29.92" style="left-align"/></div>
+          <div className="perf-field"><div className="perf-label">OAT (\u00B0C)</div><DsIn field="oat" ph="e.g. 18" style="left-align"/></div>
+        </div>
+        <div className="perf-input-row">
+          <div className="perf-field"><div className="perf-label">Pressure Alt</div><div className="perf-val">{pa!=null?fmtI(pa)+" ft":"\u2014"}</div></div>
+          <div className="perf-field"><div className="perf-label">Density Alt</div><div className="perf-val">{da!=null?fmtI(da)+" ft":"\u2014"}</div></div>
+        </div>
+        <div className="wind-divider"/>
+        <div className="perf-input-row">
+          <div className="perf-field"><div className="perf-label">Wind Direction (\u00B0)</div><DsIn field="windDir" ph="e.g. 260" style="left-align"/></div>
+          <div className="perf-field"><div className="perf-label">Wind Speed (kts)</div><DsIn field="windSpd" ph="e.g. 8" style="left-align"/></div>
+        </div>
+        <div className="perf-input-row">
+          <div className="perf-field"><div className="perf-label">Headwind Component</div><div className={"perf-val"+(isTailwind?" perf-danger":"")}>{headwind!=null?(isTailwind?"TAILWIND "+Math.abs(headwind)+" kts":headwind+" kts"):"enter wind + rwy"}</div></div>
+          <div className="perf-field"><div className="perf-label">Crosswind Component</div><div className={"perf-val"+(crosswind!=null&&crosswind>15?" perf-danger":"")}>{crosswind!=null?crosswind+" kts":"enter wind + rwy"}</div></div>
+        </div>
+        {isTailwind && <div className="cg-status cg-warn" style={{marginTop:4,marginBottom:0}}>{"\u26A0 TAILWIND \u2014 VERIFY PERFORMANCE & CONSIDER OPPOSITE RUNWAY"}</div>}
+      </div>
+      <div className="divider"/>
+      <div className="ds-section">
+        <div className="ds-header">Takeoff Performance \u2014 3,150 lbs / Flaps 50%</div>
+        <div className="perf-input-row" style={{marginTop:12}}>
+          <div className="perf-field"><div className="perf-label">Runway</div><DsIn field="runway" ph="03" style="left-align"/></div>
+          <div className="perf-field"><div className="perf-label">Available Length (ft)</div><DsIn field="rwyLen" ph="8500" style="left-align"/></div>
+        </div>
+        <div className="perf-input-row">
+          <div className="perf-field"><div className="perf-label">Ground Roll</div><div className={"perf-val"+(toGR&&d.rwyLen&&toGR>parseFloat(d.rwyLen)?" perf-danger":"")}>{toGR!=null?fmtI(toGR)+" ft":"enter OAT"}</div></div>
+          <div className="perf-field"><div className="perf-label">Over 50' Obstacle</div><div className={"perf-val"+(toObs&&d.rwyLen&&toObs>parseFloat(d.rwyLen)?" perf-danger":"")}>{toObs!=null?fmtI(toObs)+" ft":"enter OAT"}</div></div>
+        </div>
+        {toGR&&d.rwyLen?<div className="margin-callout">Remaining: {fmtI(parseFloat(d.rwyLen)-toGR)} ft after GR \u00B7 {fmtI(parseFloat(d.rwyLen)-toObs)} ft after 50' obs</div>:null}
+      </div>
+      <div className="ds-section">
+        <div className="ds-header">Landing Performance \u2014 3,150 lbs / Flaps 100%</div>
+        <div className="perf-input-row" style={{marginTop:12}}>
+          <div className="perf-field"><div className="perf-label">Ground Roll</div><div className="perf-val">{lndGR!=null?fmtI(lndGR)+" ft":"enter OAT"}</div></div>
+          <div className="perf-field"><div className="perf-label">Over 50' Obstacle</div><div className="perf-val">{lndObs!=null?fmtI(lndObs)+" ft":"enter OAT"}</div></div>
+        </div>
+      </div>
+      <div className="divider"/>
+      <div className="ds-section">
+        <div className="ds-header">V-Speeds \u2014 UAA SR20</div>
+        <div className="vspeeds-grid">
+          <div className="vspeed-item"><span className="vspeed-label">VR</span><span className="vspeed-val">71 KIAS</span></div>
+          <div className="vspeed-item"><span className="vspeed-label">Vx (Obstacle)</span><span className="vspeed-val">81 KIAS</span></div>
+          <div className="vspeed-item"><span className="vspeed-label">Vy</span><span className="vspeed-val">96 KIAS</span></div>
+          <div className="vspeed-item"><span className="vspeed-label">Approach (100%)</span><span className="vspeed-val">78 KIAS</span></div>
+        </div>
+      </div>
+      <p className="note" style={{marginTop:8}}>BEW & CG from ForeFlight \u00B7 Performance from POH Section 5 at 1,000 ft PA<br/>Moment = Weight \u00D7 Arm \u00F7 1,000 \u00B7 CG = (Total Moment \u00D7 1,000) \u00F7 Total Weight</p>
+    </div>
+  );
+}
+
+function App() {
+  const [activeTab, setActiveTab] = useState(()=>LS.get("fp-tab")||"pax");
+  const [vals, setVals] = useState(()=>LS.get("fp-vals")||{});
+  useEffect(()=>{LS.set("fp-tab",activeTab)},[activeTab]);
+  useEffect(()=>{LS.set("fp-vals",vals)},[vals]);
+  const setVal = (id,v) => setVals(prev=>({...prev,[id]:v}));
+  const clearVals = () => setVals({});
+
+  const tabs = [
+    {key:"pax",label:"PAX",icon:"\uD83D\uDC64"},
+    {key:"before",label:"B/START",icon:"\u2699"},
+    {key:"departure",label:"DEPART",icon:"\u2708"},
+    {key:"arrival",label:"ARRIVE",icon:"\uD83D\uDEEC"},
+    {key:"datasheet",label:"W&B",icon:"\u2696"},
+    {key:"flows",label:"FLOWS",icon:"\u2611"},
+  ];
+
+  const bp = {vals, setVal};
+
+  return (
+    <div className="app">
+      <div className="header">
+        <div className="header-badge"><div className="header-dot"/><span>United Aviate Academy</span></div>
+        <h2>Flight Prep</h2>
+        <div className="header-sub">KGYR \u00B7 Cirrus SR20</div>
+      </div>
+      <div className="nav">
+        {tabs.map(t=><button key={t.key} className={"tab"+(activeTab===t.key?" active":"")} onClick={()=>setActiveTab(t.key)}><span className="tab-icon">{t.icon}</span>{t.label}</button>)}
+      </div>
+
+      {activeTab==="pax"&&<BriefTab tabKey="pax" title="Passenger Briefing" vals={vals} setVal={setVal} onClear={clearVals}><span>"Seatbelts fastened and secured. Exits {"\u2014"} two doors to the left and right, exit toward the tail, stay clear of the propeller. If you're feeling airsick, let me know immediately {"\u2014"} I'll turn on the AC and keep the flight level heading back to Goodyear. We operate a sterile cockpit during all critical phases of flight. No smoking on this aircraft at any time. For emergency equipment {"\u2014"} fire extinguisher by my left leg, egress hammer in the center console, emergency survival kit in the baggage compartment. We operate a blue, red, red CAPS system in case of emergency. Positive exchange of controls {"\u2014"} I will say 'you have controls,' you say 'I have controls,' I confirm 'you have controls.'"</span></BriefTab>}
+
+      {activeTab==="before"&&<BriefTab tabKey="before" title="Before Start Briefing" vals={vals} setVal={setVal} onClear={clearVals}>"I am pilot flying, you are pilot in command and pilot monitoring. Fuel plan {"\u2014"} 40 gallons on board, expected burn 20 gallons. Maintenance status {"\u2014"} <B id="mx_hrs" placeholder="__ hrs" {...bp}/> until next maintenance, no deferred equipment. NOTAMs {"\u2014"} <B id="notams" placeholder="none noted" {...bp}/>. Taxi plan {"\u2014"} taxi via <B id="taxi_route" placeholder="Alpha" {...bp}/> to runway <B id="runway" placeholder="03" {...bp}/>, runup at <B id="runup_loc" placeholder="hold short" {...bp}/>. PEDs and EFB {"\u2014"} both iPads charged and current."</BriefTab>}
+
+      {activeTab==="departure"&&<BriefTab tabKey="departure" title="Departure Briefing" vals={vals} setVal={setVal} onClear={clearVals}>"Threats {"\u2014"} <B id="threats" placeholder="none identified" {...bp}/>. Departure clearance {"\u2014"} <B id="dep_clearance" placeholder="VFR departure" {...bp}/>. Weather {"\u2014"} <B id="wx_ceiling" placeholder="ceiling" {...bp}/> ceiling, <B id="wx_vis" placeholder="vis" {...bp}/> visibility, winds <B id="wx_dir" placeholder="dir" {...bp}/> at <B id="wx_spd" placeholder="kts" {...bp}/>, headwind <B id="hw" placeholder="__ kts" {...bp}/>, crosswind <B id="xw" placeholder="__ kts" {...bp}/>. Takeoff data {"\u2014"} runway <B id="to_rwy" placeholder="__" {...bp}/>, length <B id="rwy_len" placeholder="__ ft" {...bp}/>, ground roll <B id="gnd_roll" placeholder="__ ft" {...bp}/>, over 50-foot obstacle <B id="obs_dist" placeholder="__ ft" {...bp}/>, VR 71, obstacle speed 81. Departure review {"\u2014"} <B id="dep_review" placeholder="Buckeye departure" {...bp}/>. Terrain and obstacles {"\u2014"} <B id="terrain" placeholder="Estrellas left, cranes" {...bp}/>. Displays and automation {"\u2014"} <B id="automation" placeholder="ForeFlight" {...bp}/>. Non-normals {"\u2014"} rejected takeoff for any abnormality before rotation, I'll call abort, stop straight ahead. Engine failure after liftoff {"\u2014"} maintain runway heading, land straight ahead, no turns below 500 feet. I fly, you handle the radio."</BriefTab>}
+
+      {activeTab==="arrival"&&<BriefTab tabKey="arrival" title="Arrival Briefing" vals={vals} setVal={setVal} onClear={clearVals}>"ATIS {"\u2014"} information <B id="atis_code" placeholder="Alpha" {...bp}/>, winds <B id="arr_wind_dir" placeholder="dir" {...bp}/> at <B id="arr_wind_spd" placeholder="kts" {...bp}/>, altimeter <B id="altimeter" placeholder="29.92" {...bp}/>. Arrival review {"\u2014"} <B id="arr_review" placeholder="Cox Six / Gap" {...bp}/>, TPA <B id="tpa" placeholder="1969" {...bp}/>, contact tower at <B id="contact_pt" placeholder="__ miles" {...bp}/>. Stabilized by 300 feet, if unstable going around. Terrain {"\u2014"} <B id="arr_terrain" placeholder="Estrellas, cranes" {...bp}/>. Weather {"\u2014"} <B id="arr_wx" placeholder="VFR, winds calm" {...bp}/>. Landing perf {"\u2014"} ground roll <B id="lnd_gnd" placeholder="__ ft" {...bp}/>, over 50' <B id="lnd_obs" placeholder="__ ft" {...bp}/>, VTGT <B id="vtgt" placeholder="78 kts" {...bp}/>. Exit and taxi {"\u2014"} exit at <B id="exit" placeholder="Alpha" {...bp}/>, taxi via <B id="arr_taxi" placeholder="Alpha to ramp" {...bp}/>. Go-around {"\u2014"} click, cram, climb, clean, call {"\u2014"} rejoin <B id="ga_plan" placeholder="left traffic" {...bp}/>."</BriefTab>}
+
+      {activeTab==="datasheet"&&<DataSheet/>}
+      {activeTab==="flows"&&<div className="fade-in"><div className="section-label">Cockpit Flows</div>{FLOWS.map((flow,i)=><FlowCard key={flow.key} flow={flow} index={i}/>)}</div>}
+
+      <div className="footer">
+        <button className="reset-all-btn" onClick={()=>{if(confirm("Reset all saved data? This clears briefings, W&B, and flow checklists.")){LS.clear();window.location.reload()}}}>&#8634; RESET ALL DATA FOR NEW FLIGHT</button>
+        <p style={{marginTop:12}}>UNITED AVIATE ACADEMY {"\u00B7"} GOODYEAR, AZ<br/>CIRRUS SR20 {"\u00B7"} FOR TRAINING USE ONLY</p>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
